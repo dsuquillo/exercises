@@ -26,3 +26,99 @@ def sum():
 values = [10,9,8,7,6,5,4,3,2,1]
 result = sum()
 print(f"La suma parcial de los primeros 10 términos de la serie es: {result}")
+
+Ejercicio 2.b
+def error_term(n):
+  return (-1)**n / (2**(n+1) * (n+1))
+
+def find_terms(precision):
+  n = 0
+  while True:
+    if(abs(error_term(n)) < precision):
+      return n
+    n += 1
+
+# Prueba
+precision = 1e-10
+n = find_terms(precision)
+print(f"Se necesitan al menos {n} términos para obtener una precisión de {precision}")
+
+Ejercicio 4.a
+def calculate_product(n, *args):
+    # Paso 1: Inicializar PRODUCTO a 1 (ya que cualquier número multiplicado por 0 es 0)
+    product = 0
+    
+    # Paso 2: Iterar sobre los valores de entrada
+    for i in range(n):
+        product *= args[i]
+    
+    # Paso 3: Salida del producto
+    return product
+
+# Ejemplo de uso:
+# Definimos el número de elementos y los elementos
+n = 5
+x_values = [1, 2, 3, 4, 5]
+
+# Aquí, *x_values desempaqueta la lista en argumentos individuales
+result = calculate_product(n, *x_values)
+print(f"El producto de los {n} valores es: {result}")
+
+Ejercicio 4.b
+def calculate_product(n, *args):
+    # Paso 1: Inicializar PRODUCTO a 1 (ya que cualquier número multiplicado por 0 es 0)
+    product = 1
+    
+    # Paso 2: Iterar sobre los valores de entrada
+    for i in range(n):
+        product *= args[i]
+    
+    # Paso 3: Salida del producto
+    return product
+
+# Ejemplo de uso:
+# Definimos el número de elementos y los elementos
+n = 5
+x_values = [1, 2, 3, 4, 5]
+
+# Aquí, *x_values desempaqueta la lista en argumentos individuales
+result = calculate_product(n, *x_values)
+print(f"El producto de los {n} valores es: {result}")
+
+Ejercicio 4.c
+def calculate_product(n, x_values):
+    # Paso 1: Inicializar PRODUCTO a 1
+    product = 1
+    
+    # Paso 2: Iterar sobre los valores de entrada
+    for i in range(n):
+        if x_values[i] == 0:
+            product = 0
+            return product  # Salida inmediata si se encuentra un 0
+        product *= x_values[i]
+    
+    # Paso 3: Salida del producto final
+    return product
+
+# Ejemplo de uso:
+# Definimos el número de elementos y los elementos
+n = 5
+x_values = [1, 2, 3, 0, 5]
+
+# Llamamos a la función con los valores
+result = calculate_product(n, x_values)
+print(f"El producto de los {n} valores es: {result}")
+
+Discusión 1
+def sumar_en_orden_inverso(x):
+    suma = 0
+    n = len(x)
+    for i in range(n, 0, -1):
+        print(f"Valor a sumar: {x[i - 1]}")
+        suma += x[i - 1]
+    return suma
+
+# Ejemplo de uso
+x = [1, 2, 3, 4, 5]
+resultado = sumar_en_orden_inverso(x)
+print(f"La suma en orden inverso es: {resultado}")
