@@ -1,1 +1,294 @@
+------------- Ejercicio 1 -------------
 
+import numpy as np
+from typing import Callable
+def sign(x: float) -> int:
+    if x > 0:
+        return 1
+    elif x < 0:
+        return -1
+    else:
+        return 0
+
+def bisection(
+    a: float, b: float, *, equation: Callable[[float], float], tol: float, N: int
+) -> tuple[float, float, float, int] | None:
+    i = 1
+
+    # Input validation
+    # Comente a continuación y vea qué sucede
+    assert a < b, "a not lower than b, the interval is not valid."
+
+    # Comente a continuación y vea qué sucede
+    assert (
+        equation(a) * equation(b) < 0
+    ), "The function does not change sign over the interval."
+
+    Fa = equation(a)
+    p = a # to avoid crash in i == 0.
+    for i in range(N):
+
+        # esta alternativa es suceptible de desborde, especialmente si a y b son muy grandes
+        # p = (a + b)/2
+
+        p = a + (b - a) / 2
+        FP = equation(p)
+        if FP == 0 or (b - a) / 2 < tol:
+            return p, a, b, i
+
+        if sign(Fa) * sign(FP) > 0:
+
+            # esta alternativa podría causar también un desborde
+            # if Fa * FP > 0:
+
+            a = p
+            Fa = FP
+        else:
+            b = p
+
+    # Respuesta temporal
+    return p, a, b, i
+
+    # Es mejor usar esta opción, cuando el algoritmo no llega a una tolerancia en
+    # las iteraciones dadas.
+
+    # raise ValueError(
+    #     "Solution not found within the given tolerance and number of iterations"
+    # )
+
+# Prueba
+def equation (x):
+  return x**3 - 7*x**2 + 14*x - 6
+# Parámetros del método de bisección
+a = 3.2
+b = 4
+tol = 1e-2
+N = 100
+
+# Llamar a la función de bisección
+resultado = bisection(a, b, equation=equation, tol=tol, N=N)
+
+if resultado is not None:
+    p, a_final, b_final, iteraciones = resultado
+    print(f"La raíz en el intervalo [{a}, {b}] es: {p}")
+    print(f"Intervalo final: [{a_final}, {b_final}]")
+    print(f"Número de iteraciones: {iteraciones + 1}")
+else:
+    print("No se encontró una solución dentro de la tolerancia y número de iteraciones dados")
+
+------------- Ejercicio 2, 3 -------------
+
+import matplotlib.pyplot as plt
+
+def equation1(x:float)->float:
+    return x
+
+def equation2(x:float)->float:
+    return np.sin(x)
+
+# Generate x values
+x = np.linspace(-10, 10, 100)
+
+# Calculate y values
+y1 = equation1(x)
+y2 = equation2(x)
+
+# Plot the equation
+plt.plot(x, y1,label='x')
+plt.plot(x, y2,label='sin(x)')
+
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Gráficos')
+
+# Show Legend
+plt.legend()
+
+ax = plt.gca()
+ax.set_ylim([-10, 10])
+ax.set_xlim([-5, 3])
+plt.grid(True)
+plt.show()
+
+def equation(x:float)->float:
+    return x - 2*np.sin(x)
+
+# Generate x values
+x = np.linspace(-10, 10, 100)
+
+# Calculate y values
+y = equation(x)
+
+# Plot the equation
+plt.plot(x, y)
+
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('x - 2sin(x)')
+ax = plt.gca()
+ax.set_ylim([-10, 10])
+ax.set_xlim([-5, 3])
+plt.grid(True)
+plt.show()
+
+# Prueba
+def equation (x):
+  return x - 2*np.sin(x)
+# Parámetros del método de bisección
+a = 0.5
+b = 2
+tol = 1e-5
+N = 100
+
+# Llamar a la función de bisección
+resultado = bisection(a, b, equation=equation, tol=tol, N=N)
+
+if resultado is not None:
+    p, a_final, b_final, iteraciones = resultado
+    print(f"La raíz en el intervalo [{a}, {b}] es: {p}")
+    print(f"Intervalo final: [{a_final}, {b_final}]")
+    print(f"Número de iteraciones: {iteraciones + 1}")
+else:
+    print("No se encontró una solución dentro de la tolerancia y número de iteraciones dados")
+
+------------- Ejercicio 4 -------------
+
+import matplotlib.pyplot as plt
+
+def equation1(x:float)->float:
+    return x**2 - 1
+
+def equation2(x:float)->float:
+    return np.exp(1 - x**2)
+
+# Generate x values
+x = np.linspace(-10, 10, 100)
+
+# Calculate y values
+y1 = equation1(x)
+y2 = equation2(x)
+
+# Plot the equation
+plt.plot(x, y1,label='$x^2-1$')
+plt.plot(x, y2,label='$e^{1-x^2}$')
+
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Gráficos')
+
+# Show Legend
+plt.legend()
+
+ax = plt.gca()
+ax.set_ylim([-10, 10])
+ax.set_xlim([-5, 3])
+plt.grid(True)
+plt.show()
+
+------------- Ejercicio 5 -------------
+
+import matplotlib.pyplot as plt
+from ipywidgets import interactive
+
+def plotting(a, b, i):
+    x = np.linspace(a, b, 100)
+
+    y = (x + 3) * (x + 1)**2 * (x) * (x - 1)**3 * (x - 3)
+    x_i = x[0]
+    try:
+      x_i, a2, b2, i = bisection(a, b, equation=equation, tol=1e-5, N=i)
+      all = True
+    except Exception as e:
+      all = False
+      print(e)
+      a2 = b2 = (a + b)/2
+
+    print(f"raíz: {x_i}")
+    ax = plt.gca()
+    ax.cla()
+    plt.plot(x, y);
+
+    plt.xlabel('x');
+    plt.ylabel('y');
+    plt.title('$(x+3)(x+1)^2x(x-1)^3(x-3)$');
+    plt.scatter(a, equation(a), color='blue', label='initial left lim');
+    plt.scatter(b, equation(b), color='blue', label='initial right lim');
+    if all:
+      plt.scatter(a2, equation(a2), color='red')
+      plt.scatter(b2, equation(b2), color='red')
+      plt.scatter(x_i, 0, color='green', marker = "s", label='root');
+
+      plt.hlines(0, a, b, colors= "black")
+    plt.grid(True);
+    plt.legend();
+
+    plt.show();
+
+interactive_plot = interactive(plotting, a=(-5,5,.1), b=(-5,5,.1), i=(0,30,1))
+display(interactive_plot);
+
+------------- Ejercicio 6 -------------
+
+# Prueba
+def equation (x):
+  return 12.4 - 10*(0.5*np.pi - np.arcsin(x) - x*(1 - x**2)**(1/2))
+# Parámetros del método de bisección
+a = 0
+b = 1
+tol = 1e-2
+N = 100
+
+# Llamar a la función de bisección
+resultado = bisection(a, b, equation=equation, tol=tol, N=N)
+
+if resultado is not None:
+    p, a_final, b_final, iteraciones = resultado
+    print(f"La raíz en el intervalo [{a}, {b}] es: {p}")
+    print(f"Intervalo final: [{a_final}, {b_final}]")
+    print(f"Número de iteraciones: {iteraciones + 1}")
+else:
+    print("No se encontró una solución dentro de la tolerancia y número de iteraciones dados")
+
+------------- Ejercicio 7 -------------
+
+# Prueba
+def equation (x):
+  return 300 - 24.525*x + 61.3125*(1 - np.exp(-0.4*x))
+# Parámetros del método de bisección
+a = 13
+b = 15
+tol = 1e-1
+N = 100
+
+# Llamar a la función de bisección
+resultado = bisection(a, b, equation=equation, tol=tol, N=N)
+
+if resultado is not None:
+    p, a_final, b_final, iteraciones = resultado
+    print(f"La raíz en el intervalo [{a}, {b}] es: {p}")
+    print(f"Intervalo final: [{a_final}, {b_final}]")
+    print(f"Número de iteraciones: {iteraciones + 1}")
+else:
+    print("No se encontró una solución dentro de la tolerancia y número de iteraciones dados")
+
+------------- Ejercicio 8 -------------
+
+# Prueba
+def equation (x):
+  return x**3 - x -1
+# Parámetros del método de bisección
+a = 1
+b = 2
+tol = 1e-4
+N = 100
+
+# Llamar a la función de bisección
+resultado = bisection(a, b, equation=equation, tol=tol, N=N)
+
+if resultado is not None:
+    p, a_final, b_final, iteraciones = resultado
+    print(f"La raíz en el intervalo [{a}, {b}] es: {p}")
+    print(f"Intervalo final: [{a_final}, {b_final}]")
+    print(f"Número de iteraciones: {iteraciones + 1}")
+else:
+    print("No se encontró una solución dentro de la tolerancia y número de iteraciones dados")
