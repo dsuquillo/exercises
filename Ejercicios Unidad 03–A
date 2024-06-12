@@ -1,0 +1,155 @@
+------------- Ejercicio 1 -------------
+
+# Series de Taylor
+
+import sympy as sym
+import numpy as np
+import matplotlib.pyplot as plt
+
+def taylor_polynomial(fcn, x0, n):
+    x = sym.symbols('x')
+    f = sym.sympify(fcn(x))
+    taylor = sym.S(0)
+
+    for i in range(n + 1):
+        taylor += f.diff(x, i).subs(x, x0) / sym.factorial(i) * (x - x0) ** i
+
+    return taylor
+
+# Definir la función
+def function(x):
+    return 1 / (2*x**2 + 1)
+
+x_values = np.linspace(-3, 3, 400)
+
+plt.plot(x_values, function(x_values), label='$f(x)=\\frac{1}{2x^2 + 1}$', color='blue')
+errors = []
+for i in range(1, 5):
+    taylor = taylor_polynomial(function, 0, i)
+    taylor_lambda = sym.lambdify(sym.symbols('x'), taylor, modules=['numpy'])
+    taylor_values = taylor_lambda(x_values)
+    if np.isscalar(taylor_values):
+        taylor_values = np.full_like(x_values, taylor_values)
+    plt.plot(x_values, taylor_values, label=f'Polinomio de Taylor de orden {i}', linestyle='--')
+    print(f'Polinomio de Taylor de orden {i}: {taylor}')
+    error = np.abs(function(x_values) - taylor_values)
+    errors.append(np.max(error))
+
+best_order = np.argmin(errors) + 1
+print(f'El mejor orden de aproximación es {best_order}')
+
+plt.ylim(0, 1)
+plt.axhline(0, color='black', linewidth=0.5)
+plt.axvline(0, color='black', linewidth=0.5)
+plt.grid(color='gray', linestyle='--', linewidth=0.5)
+plt.legend()
+plt.title('Serie de Taylor de $\\frac{1}{2x^2 + 1}$ en $x_0 = 0$')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()
+
+# Polinomio de Lagrange
+
+def lagrange_polynomial(x_values, y_values):
+    x = sym.symbols('x')
+    n = len(x_values)
+    L = 0
+    for i in range(n):
+        p = 1
+        for j in range(n):
+            if i != j:
+                p *= (x - x_values[j]) / (x_values[i] - x_values[j])
+        L += y_values[i] * p
+    return L
+
+# Generar algunos puntos de la función
+x_points = np.linspace(-3, 3, 5)
+y_points = function(x_points)
+
+# Construir el polinomio de Lagrange
+lagrange = lagrange_polynomial(x_points, y_points)
+lagrange_lambda = sym.lambdify(sym.symbols('x'), lagrange, modules=['numpy'])
+lagrange_values = lagrange_lambda(x_values)
+
+# Graficar la función y el polinomio de Lagrange
+plt.plot(x_values, function(x_values), label='$f(x)=\\frac{1}{2x^2 + 1}$', color='blue')
+plt.plot(x_values, lagrange_values, label='Polinomio de Lagrange', linestyle='--')
+plt.scatter(x_points, y_points, color='red')  # Puntos usados para construir el polinomio de Lagrange
+
+plt.ylim(0, 1)
+plt.axhline(0, color='black', linewidth=0.5)
+plt.axvline(0, color='black', linewidth=0.5)
+plt.grid(color='gray', linestyle='--', linewidth=0.5)
+plt.legend()
+plt.title('Polinomio de Lagrange de $\\frac{1}{2x^2 + 1}$')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()
+
+------------- Ejercicio 2 -------------
+
+# Series de Taylor
+
+# Definir la función
+def function(x):
+    return sym.atan(x)
+
+x_values = np.linspace(-3, 3, 400)
+x = sym.symbols('x')
+
+plt.plot(x_values, [function(x).subs(x, val) for val in x_values], label='$f(x)=\\arctan(x)$', color='blue')
+errors = []
+for i in range(1, 5):
+    taylor = taylor_polynomial(function, 1, i)
+    taylor_lambda = sym.lambdify(sym.symbols('x'), taylor, modules=['numpy'])
+    taylor_values = taylor_lambda(x_values)
+    if np.isscalar(taylor_values):
+        taylor_values = np.full_like(x_values, taylor_values)
+    plt.plot(x_values, taylor_values, label=f'Polinomio de Taylor de orden {i}', linestyle='--')
+    print(f'Polinomio de Taylor de orden {i}: {taylor}')
+    error = np.abs(np.array([function(x).subs(x, val) for val in x_values]) - taylor_values)
+    errors.append(np.max(error))
+
+best_order = np.argmin(errors) + 1
+print(f'El mejor orden de aproximación es {best_order}')
+
+plt.ylim(-2, 2)
+plt.axhline(0, color='black', linewidth=0.5)
+plt.axvline(0, color='black', linewidth=0.5)
+plt.grid(color='gray', linestyle='--', linewidth=0.5)
+plt.legend()
+plt.title('Serie de Taylor de $\\arctan(x)$ en $x_0 = 0$')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()
+
+# Polinomio de Lagrange
+
+def function(x):
+    return sym.atan(x)
+
+x = sym.symbols('x')
+
+# Generar algunos puntos de la función
+x_points = np.linspace(-3, 3, 5)
+y_points = [function(x).subs(x, val) for val in x_points]
+
+# Construir el polinomio de Lagrange
+lagrange = lagrange_polynomial(x_points, y_points)
+lagrange_lambda = sym.lambdify(sym.symbols('x'), lagrange, modules=['numpy'])
+lagrange_values = lagrange_lambda(x_values)
+
+# Graficar la función y el polinomio de Lagrange
+plt.plot(x_values, [function(x).subs(x, val) for val in x_values], label='$f(x)=\\arctan(x)$', color='blue')
+plt.plot(x_values, lagrange_values, label='Polinomio de Lagrange', linestyle='--')
+plt.scatter(x_points, y_points, color='red')  # Puntos usados para construir el polinomio de Lagrange
+
+plt.ylim(-2, 2)
+plt.axhline(0, color='black', linewidth=0.5)
+plt.axvline(0, color='black', linewidth=0.5)
+plt.grid(color='gray', linestyle='--', linewidth=0.5)
+plt.legend()
+plt.title('Polinomio de Lagrange de $\\arctan(x)$')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()
