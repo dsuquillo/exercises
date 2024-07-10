@@ -1,0 +1,178 @@
+---------------------- Progresion Lineal ------------------------
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+def linear_regression(xs, ys, typ):
+    typ = typ.lower()
+    n = len(xs)
+
+    sum_x = sum(np.log(x) for x in xs) if typ == 'e_2' else sum(xs)
+
+    sum_y = sum(ys) if typ == 'l' else sum(np.log(y) for y in ys)
+    sum_xy = sum(x * y for x, y in zip(xs, ys)) if typ == 'l' else sum(x * np.log(y) for x, y in zip(xs, ys)) if typ == 'e_1' else sum(np.log(x) * np.log(y) for x, y in zip(xs, ys))
+
+    sum_x2 = sum(np.log(x) * np.log(x) for x in xs) if typ == 'e_2' else sum(x * x for x in xs)
+
+    # Calcular los coeficientes
+
+    m = round((n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x ** 2), 4)
+    b = (sum_y * sum_x2 - sum_x * sum_xy) / (n * sum_x2 - sum_x**2 )
+
+    # Imprimir Valores
+    if(typ == 'l'):
+      print("Forma Lineal")
+    else:
+      print(f"Forma Exponencial {'y = b*e^ax' if(typ == 'e_1') else 'b*x^a'} ")
+
+    if(typ == 'e_2'):
+      print(f"\nSumatoria de lnx = {sum_x}")
+    else:
+      print(f"\nSumatoria de x = {sum_x}")
+
+    if(typ == 'l'):
+      print(f"Sumatoria de y = {sum_y}")
+      print(f"Sumatoria de x*y = {sum_xy}")
+
+    if(typ == 'e_1'):
+      print(f"Sumatoria de lny = {sum_y}")
+      print(f"Sumatoria de x*lny = {sum_xy}")
+
+    if(typ == 'e_2'):
+      print(f"Sumatoria de lny = {sum_y}")
+      print(f"Sumatoria de lnx*lny = {sum_xy}")
+
+    if(typ == 'e_2'):
+      print(f"Sumatoria de lnx*lnx = {sum_x2}")
+    else:
+      print(f"Sumatoria de x*x = {sum_x2}")
+    print(f"n = {n}")
+    print("\nCoeficientes:")
+    if(typ != 'l'): b = np.exp(b)
+    b = round(b, 4)
+    print(f"{'a0' if(typ == 'l') else 'b'} = {b}")
+    print(f"{'a1' if(typ == 'l') else 'a'} = {m}")
+
+
+    # Función obtenida
+    if typ == 'l':
+      f_x = lambda x: m * x + b
+    elif(typ == 'e_1'):  # Asumiendo que el otro caso es 'e_1' o cualquier otro tipo que requiera esta fórmula
+      f_x = lambda x: b * np.exp(m * x)
+    else:
+      f_x = lambda x: b * x ** m
+
+    print("\nFunción obtenida")
+    if(typ == 'l'):
+      print(f"f(x) = {m} * x + {b}")
+    if(typ == 'e_1'):
+      print(f"f(x) = {b} * e ^ {m} * x")
+    if(typ == 'e_2'):
+      print(f"f(x) = {b} * x ^ {m}")
+
+    # Calcular el error
+    error = sum((y - f_x(x)) ** 2 for x, y in zip(xs, ys))
+    error = "{:.3e}".format(error)
+    print(f"\nError = {error}")
+    print("\n")
+
+    f_xs = [f_x(x) for x in xs]
+
+    # Gráfico
+    plt.plot(xs, f_xs, color='blue', label='Regresión lineal')
+    plt.scatter(xs, ys, color='red', label='Datos originales')
+
+    if(typ == 'l'): plt.title('Forma: m*x + b')
+    if(typ == 'e_1'): plt.title('Forma: y = b * e^ax')
+    if(typ == 'e_2'): plt.title('Forma: y = b * x^a')
+
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.grid(True)
+    plt.show()
+
+# Uso
+xs = [4800, 3700, 3400, 2800, 1900]
+ys = [3.1, 4, 5.2, 6.4, 9.6]
+linear_regression(xs, ys, 'l')
+
+---------------------- Progresion Polimonial ------------------------
+
+import numpy as np
+import sympy as sym
+import matplotlib.pyplot as plt
+
+def polymonial_regression(xs, ys, n):
+  xs = np.array(xs)
+  ys = np.array(ys)
+
+  # Nombres de variables
+  variables = ['a0', 'a1', 'a2', 'a3', 'a4']
+
+  # Llenar matriz A y vector B
+  k = n + 1
+  A = np.zeros(shape=(k,k),dtype=float)
+  B = np.zeros(k,dtype=float)
+
+  for i in range(0,k,1):
+      for j in range(0,i+1,1):
+          coeficiente = round(np.sum(xs**(i+j)), 4)
+          A[i,j] = coeficiente
+          A[j,i] = coeficiente
+      B[i] = round(np.sum(ys*(xs**i)), 4)
+
+  # Imprimir cada ecuación
+  print('Ecuaciones normales:')
+  for i in range(k):
+      ecuacion = ""
+      for j in range(len(A[i])):
+          # Añadir el coeficiente y el nombre de la variable
+          if A[i][j] == 1:  # Si el coeficiente es 1, no lo imprimimos para 1x => x
+              ecuacion += f"{variables[j]}"
+          else:
+              ecuacion += f"{A[i][j]}{variables[j]}"
+          if j < len(A[i]) - 1:  # Añadir el signo + entre los términos, excepto después del último término
+              ecuacion += " + "
+      ecuacion += f" = {B[i]}"
+      print(ecuacion)
+
+  # Coeficientes, resuelve sistema de ecuaciones
+  C = np.linalg.solve(A,B)
+
+  # Imprimir coeficientes
+  print('\nCoeficientes:')
+  for i in range(k):
+      print(f"{variables[i]} = {round(C[i], 10)}")
+
+  # Polinomio
+  x = sym.Symbol('x')
+  f = 0
+  for i in range(0,k,1):
+      f = f + round(C[i], 5)*(x**i)
+
+  fx = sym.lambdify(x,f)
+  f_x = fx(xs)
+
+  # Error en notacion cientifica y redondear a 3 cifras
+  error = np.sum((ys - f_x)**2)
+  error = "{:.3e}".format(error)
+
+  # Resultado
+  print('\nPolinomio resultante: ')
+  print('f(x) =',f)
+  print('\nError =',error)
+  print('\n')
+
+  # Grafico
+  plt.plot(xs,f_x, color='blue')
+  plt.scatter(xs, ys, color='red')
+  plt.xlabel('x')
+  plt.ylabel('y')
+  plt.title('Regresion polinomial grado ' + str(n))
+  plt.show()
+
+# Uso
+xs = [0.2, 0.3, 0.6, 0.9, 1.1, 1.3, 1.4, 1.6]
+ys = [0.050446,	0.098426, 0.33277, 0.72660, 1.0972,
+      1.5697, 1.8487, 2.5015]
+polymonial_regression(xs, ys, 3)
