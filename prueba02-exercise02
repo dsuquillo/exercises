@@ -1,0 +1,289 @@
+# prueba2
+# Ejercicio 2
+
+# Derivadas parciales
+# ####################################################################
+def der_parcial_1(xs: list, ys: list) -> tuple[float, float, float]:
+    """Retorna los coeficientes de la ecuación de la derivada parcial con respecto al parámetro 1 al reemplazar los valores ``xs`` y ``ys``. La ecuación es de la forma:
+    c_1 * a_1 + c_0 * a_0 = c_ind
+
+
+    ## Parameters
+
+    ``xs``: lista de valores de x.
+
+    ``ys``: lista de valores de y.
+
+    ## Return
+
+    ``c_1``: coeficiente del parámetro 1.
+
+    ``c_0``: coeficiente del parámetro 0.
+
+    ``c_ind``: coeficiente del término independiente.
+
+    """
+
+    # coeficiente del término independiente
+    c_ind = sum(y * x for x, y in zip(xs, ys))
+
+    # coeficiente del parámetro 2
+    c_2 = sum(x**3 for x in xs)
+
+    # coeficiente del parámetro 1
+    c_1 = sum(x**2 for x in xs)
+
+    # coeficiente del parámetro 0
+    c_0 = sum(xs)
+
+    return (c_2, c_1, c_0, c_ind)
+
+
+def der_parcial_0(xs: list, ys: list) -> tuple[float, float, float]:
+    """Retorna los coeficientes de la ecuación de la derivada parcial con respecto al parámetro 0 al reemplazar los valores ``xs`` y ``ys``. La ecuación es de la forma:
+    c_1 * a_1 + c_0 * a_0 = c_ind
+
+
+    ## Parameters
+
+    ``xs``: lista de valores de x.
+
+    ``ys``: lista de valores de y.
+
+    ## Return
+
+    ``c_1``: coeficiente del parámetro 1.
+
+    ``c_0``: coeficiente del parámetro 0.
+
+    ``c_ind``: coeficiente del término independiente.
+
+    """
+
+    # coeficiente del término independiente
+    c_ind = sum(ys)
+
+    # coeficiente del parámetro 2
+    c_2 = sum(x**2 for x in xs)
+
+    # coeficiente del parámetro 1
+    c_1 = sum(xs)
+
+    # coeficiente del parámetro 0
+    c_0 = len(xs)
+
+    return (c_2, c_1, c_0, c_ind)
+
+def der_parcial_0_exp(xs: list, ys: list) -> tuple[float, float, float]:
+    """Retorna los coeficientes de la ecuación de la derivada parcial con respecto al parámetro 1 al reemplazar los valores ``xs`` y ``ys``. La ecuación es de la forma:
+    c_1 * a_1 + c_0 * a_0 = c_ind
+
+
+    ## Parameters
+
+    ``xs``: lista de valores de x.
+
+    ``ys``: lista de valores de y.
+
+    ## Return
+
+    ``c_1``: coeficiente del parámetro 1.
+
+    ``c_0``: coeficiente del parámetro 0.
+
+    ``c_ind``: coeficiente del término independiente.
+
+    """
+    # coeficiente del término independiente
+    c_ind = sum(y * x**2 for x, y in zip(xs, ys))
+
+    # coeficiente del parámetro 2
+    c_2 = sum(x**4 for x in xs)
+
+    # coeficiente del parámetro 1
+    c_1 = sum(x**3 for x in xs)
+
+    # coeficiente del parámetro 0
+    c_0 = sum(x**2 for x in xs)
+
+    return (c_2, c_1, c_0, c_ind)
+
+xs2 = [
+    -5.0000,
+    -3.8889,
+    -2.7778,
+    -1.6667,
+    -0.5556,
+    0.5556,
+    1.6667,
+    2.7778,
+    3.8889,
+    5.0000,
+]
+ys2 = [
+    57.2441,
+    33.0303,
+    16.4817,
+    7.0299,
+    0.5498,
+    0.7117,
+    3.4185,
+    12.1767,
+    24.9167,
+    44.2495,
+]
+
+import matplotlib.pyplot as plt
+
+plt.scatter(xs2, ys2)
+plt.xlabel("x")
+plt.ylabel("y")
+plt.title("Conjunto de datos 2")
+plt.show()
+
+def cuadratica(x: float, pars: tuple[float]) -> float:
+    """Ecuación de la parábola y = a2 * x^2 + a1 * x + a0.
+
+    ## Parameters
+
+    ``x``: valor de x.
+
+    ``pars``: parámetros de la parábola. Deben ser de la forma (a2, a1, a0).
+
+    ## Return
+
+    ``y``: valor de y.
+
+    """
+    a2, a1, a0 = pars
+    return a2 * x**2 + a1 * x + a0
+
+import logging
+import numpy as np
+
+def eliminacion_gaussiana(A: np.ndarray) -> np.ndarray:
+    """Resuelve un sistema de ecuaciones lineales mediante el método de eliminación gaussiana.
+
+    ## Parameters
+
+    ``A``: matriz aumentada del sistema de ecuaciones lineales. Debe ser de tamaño n-by-(n+1), donde n es el número de incógnitas.
+
+    ## Return
+
+    ``solucion``: vector con la solución del sistema de ecuaciones lineales.
+
+    """
+    if not isinstance(A, np.ndarray):
+        logging.debug("Convirtiendo A a numpy array.")
+        A = np.array(A)
+    assert A.shape[0] == A.shape[1] - 1, "La matriz A debe ser de tamaño n-by-(n+1)."
+    n = A.shape[0]
+
+    for i in range(0, n - 1):  # loop por columna
+
+        # --- encontrar pivote
+        p = None  # default, first element
+        for pi in range(i, n):
+            if A[pi, i] == 0:
+                # must be nonzero
+                continue
+
+            if p is None:
+                # first nonzero element
+                p = pi
+                continue
+
+            if abs(A[pi, i]) < abs(A[p, i]):
+                p = pi
+
+        if p is None:
+            # no pivot found.
+            raise ValueError("No existe solución única.")
+
+        if p != i:
+            # swap rows
+            logging.debug(f"Intercambiando filas {i} y {p}")
+            _aux = A[i, :].copy()
+            A[i, :] = A[p, :].copy()
+            A[p, :] = _aux
+
+        # --- Eliminación: loop por fila
+        for j in range(i + 1, n):
+            m = A[j, i] / A[i, i]
+            A[j, i:] = A[j, i:] - m * A[i, i:]
+
+        logging.info(f"\n{A}")
+
+    if A[n - 1, n - 1] == 0:
+        raise ValueError("No existe solución única.")
+
+        print(f"\n{A}")
+    # --- Sustitución hacia atrás
+    solucion = np.zeros(n)
+    solucion[n - 1] = A[n - 1, n] / A[n - 1, n - 1]
+
+    for i in range(n - 2, -1, -1):
+        suma = 0
+        for j in range(i + 1, n):
+            suma += A[i, j] * solucion[j]
+        solucion[i] = (A[i, n] - suma) / A[i, i]
+
+    return solucion
+
+from typing import Callable
+
+def ajustar_min_cuadrados(
+    xs: list,
+    ys: list,
+    gradiente: list[Callable[[list[float], list[float], list[float]], tuple]],
+) -> None:
+    """Resuelve el sistema de ecuaciones para encontrar los parámetros del método de mínimos cuadrados. Plantea el sistema de ecuaciones lineales al reemplazar los valores de ``xs`` y ``ys`` en las derivadas parciales.
+
+    ## Parameters
+
+    ``xs``: lista con los valores de x.
+
+    ``ys``: lista con los valores de y.
+
+    ``fcn``: función que se ajustará a los datos.
+
+    ``gradiente``: lista con las funciones de derivadas parciales de ``fcn``.
+    [IMPORTANTE] Cada función debe ser de la forma ``der_parcial(xi, yi)->``.
+
+    ## Return
+
+    ``a``:
+
+    """
+
+    assert len(xs) == len(ys), "xs y ys deben tener la misma longitud."
+
+    n = len(xs)
+
+    num_pars = len(gradiente)
+    logging.info(f"Se ajustarán {num_pars} parámetros.")
+    # --- construir matriz A y vector b
+    Ab = np.zeros((num_pars, num_pars + 1), dtype=float)
+
+    for i, der_parcial in enumerate(gradiente):
+        assert callable(der_parcial), "Cada derivada parcial debe ser una función."
+
+        Ab[i, :] = der_parcial(xs, ys)
+
+    return eliminacion_gaussiana(Ab)
+
+  import numpy as np
+
+x = np.linspace(-5, 5, 100)
+
+pars = ajustar_min_cuadrados(xs2, ys2, gradiente=[der_parcial_0, der_parcial_1, der_parcial_0_exp])
+
+y = [cuadratica(xi, pars) for xi in x]
+
+plt.scatter(xs2, ys2, label="Datos")
+plt.plot(x, y, color="red", label=r"$ y = a_1 x + a_0 $")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.title("Ajuste por mínimos cuadrados")
+plt.legend()
+plt.show()
