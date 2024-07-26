@@ -1,0 +1,152 @@
+import numpy as np
+import scipy.linalg
+import logging
+from sys import stdout
+from datetime import datetime
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s][%(levelname)s] %(message)s",
+    stream=stdout,
+    datefmt="%m-%d %H:%M:%S",
+)
+logging.info(datetime.now())
+
+# Multiplicación de matrices
+def multiplicar_matrices(A, B):
+    # Get the dimensions of the matrices
+    rows_A, cols_A = A.shape
+    rows_B, cols_B = B.shape
+
+    # Initialize the result matrix with zeros
+    result = np.zeros((rows_A, cols_B))
+
+    # Perform matrix multiplication manually to print each step
+    for i in range(rows_A):
+        for j in range(cols_B):
+            operaciones = []
+            for k in range(cols_A):
+                operacion = f"{A[i, k]}*{B[k, j]}"
+                operaciones.append(operacion)
+                result[i, j] += A[i, k] * B[k, j]
+            operaciones_str = " + ".join(operaciones)
+            print(f"Elemento result[{i}, {j}]: {operaciones_str} = {result[i, j]}")
+        print()
+
+    print(result)
+
+# Matriz inversa
+def calcular_inversa(A):
+    # Verificar si la matriz es singular
+    determinante = np.linalg.det(A)
+
+    print(f"La determinante es: {determinante}")
+
+    if determinante == 0:
+        print("La matriz es singular")
+    else:
+        # Calcular la inversa de la matriz
+        matriz_inversa = np.linalg.inv(A)
+        print("La matriz inversa es:")
+        print(matriz_inversa)
+
+# Descomposición LU
+def descomposicion_LU(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    A = np.array(A, dtype=float)  # convertir en float, porque si no, puede convertir como entero
+
+    assert A.shape[0] == A.shape[1], "La matriz A debe ser cuadrada."
+    n = A.shape[0]
+
+    L = np.zeros((n, n), dtype=float)
+
+    for i in range(0, n):  # loop por columna
+
+        # --- deterimnar pivote
+        if A[i, i] == 0:
+            raise ValueError("No existe solución única.")
+
+        # --- Eliminación: loop por fila
+        L[i, i] = 1
+        for j in range(i + 1, n):
+            m = A[j, i] / A[i, i]
+            A[j, i:] = A[j, i:] - m * A[i, i:]
+
+            L[j, i] = m
+
+        logging.info(f"\n{A}")
+
+    if A[n - 1, n - 1] == 0:
+        raise ValueError("No existe solución única.")
+
+    logging.info(f"\nL: {L}")
+    logging.info(f"\nU: {A}")
+
+    return L, A
+
+# Resolver LU
+def resolver_LU(L: np.ndarray, U: np.ndarray, b: np.ndarray) -> np.ndarray:
+    n = L.shape[0]
+
+    # --- Sustitución hacia adelante
+    logging.info("Sustitución hacia adelante")
+
+    y = np.zeros((n, 1), dtype=float)
+
+    y[0] = b[0] / L[0, 0]
+
+    for i in range(1, n):
+        suma = 0
+        for j in range(i):
+            suma += L[i, j] * y[j]
+        y[i] = (b[i] - suma) / L[i, i]
+
+    logging.info(f"y = \n{y}")
+
+    # --- Sustitución hacia atrás
+    logging.info("Sustitución hacia atrás")
+    sol = np.zeros((n, 1), dtype=float)
+
+    sol[-1] = y[-1] / U[-1, -1]
+
+    for i in range(n - 2, -1, -1):
+        logging.info(f"i = {i}")
+        suma = 0
+        for j in range(i + 1, n):
+            suma += U[i, j] * sol[j]
+        logging.info(f"suma = {suma}")
+        logging.info(f"U[i, i] = {U[i, i]}")
+        logging.info(f"y[i] = {y[i]}")
+        sol[i] = (y[i] - suma) / U[i, i]
+
+    logging.debug(f"x = \n{sol}")
+    return sol
+
+# Multiplicacion de matrices
+# Define the matrices
+# A = np.array([[2, -3], [3, -1]])
+# B = np.array([[1, 5, -4], [-3, 2, 0]])
+
+# Call the function with the matrices as parameters
+# multiplicar_matrices(A, B)
+
+# Inversa
+# Definir la matriz
+# A = np.array([[4, 2, 6], [3, 0, 7], [-2, -1, -3]])
+
+# Llamar a la función con la matriz como parámetro
+# calcular_inversa(A)
+
+# Descomposicion LU
+# Definir la matriz de coeficientes A
+# A = np.array([[1, -1, 2, -1], [1, 0, -1, 1], [2, 1, 3, -4], [0, -1, 1, -1]])
+
+# Definir los vectores de constantes b y b1
+# b = np.array([6, 4, -2, 5])
+# b1 = np.array([1, 1, 2, -1])
+
+# Descomponer A
+# L, U = descomposicion_LU(A)
+
+# Resolveer el primer sistema de ecuaciones
+# x = resolver_LU(L, U, b)
+
