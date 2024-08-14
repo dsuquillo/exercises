@@ -1,0 +1,31 @@
+#Grafica de la funcion f(x) = x^2 - 3x + 2
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import bisect
+
+#zoom al grafico para visualizar mejor las raices
+x = np.linspace(-2,10,100)
+y = x**5 - 6*x**4 + 2*x**3 + 20*x**2 - 27*x + 10
+# limit y axis
+plt.ylim(-10,10)
+plt.plot(x,y)
+plt.show()
+
+
+# Encuentra la raices de la funcion utilizando el metodo de biseccion
+
+# rangos de busqueda
+ranges = [(-4,-1.5), (0,3), (3,7)]
+
+def f(x):
+    return x**5 - 6*x**4 + 2*x**3 + 20*x**2 - 27*x + 10
+# Encuentra la raiz por cada rango
+for r in ranges:
+    raiz = bisect(f, r[0], r[1], xtol=1e-2)
+    print(raiz)
+print(raiz)
+
+raiz = bisect(f, 3, 7, xtol=1e-2)
+print(raiz)
+
+
