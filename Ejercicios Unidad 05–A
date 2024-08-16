@@ -1,0 +1,68 @@
+from typing import Callable
+import numpy as np
+
+import matplotlib.pyplot as plt
+
+def ODE_euler(
+    *,
+    a: float,
+    b: float,
+    f: Callable[[float, float], float],
+    y_t0: float,
+    N: int,
+) -> tuple[list[float], list[float], float]:
+    h = (b - a) / N
+    t = a
+    ts = [t]
+    ys = [y_t0]
+
+    for _ in range(N):
+        y = ys[-1]
+        y += h * f(t, y)
+        ys.append(y)
+
+        t += h
+        ts.append(t)
+    return ys, ts, h
+
+# Approximation
+def approximation(a, b, f, y_t0, N):
+    ys, ts, h = ODE_euler(a=a, b=b, f=f, y_t0=y_t0, N=N)
+
+    plt.plot(ts, ys)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Approximation using Euler\'s method')
+    plt.grid(True)
+    plt.show()
+
+# Error
+def error(a, b, f, y_t0, N, f_real):
+    ys, ts, h = ODE_euler(a=a, b=b, f=f, y_t0=y_t0, N=N)
+    ys_real = [f_real(t) for t in ts]
+    errors = [abs(y - y_real) for y, y_real in zip(ys, ys_real)]
+    for e in errors:
+        print('error: ', e)
+    
+    # Grafica ambas funciones
+    plt.plot(ts, ys, label='Approximation')
+    plt.plot(ts, ys_real, label='Real')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Approximation using Euler\'s method')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+f = lambda t, y: -(y+1)*(y+3)
+a = 0  # Initial value
+b = 1  # Final value
+y_t0 = 1  # Initial value of y(t)
+N = 1
+
+f_real = lambda t: -3 + 2/(1 + np.exp(-2*t))
+
+# approximation(a, b, f, y_t0, N)
+
+error(a, b, f, y_t0, N, f_real)
